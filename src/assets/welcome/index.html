@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digiKUNTZ | Portail QR Code CCAA</title>
+
+  <style>
+    :root{
+      /* Couleurs institutionnelles Cameroun & Aviation */
+      --ccaa-blue: #00447c;
+      --ccaa-blue-2:#002a4d;
+      --ccaa-red: #ce1126;
+      --ccaa-yellow: #fcd116;
+      --ccaa-green: #007a5e;
+
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: rgba(15, 23, 42, .10);
+
+      --radius: 18px;
+      --shadow: 0 18px 45px rgba(2, 6, 23, .10);
+      --shadow-soft: 0 10px 28px rgba(2, 6, 23, .08);
+      --max: 1120px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 500px at 20% -10%, rgba(0,68,124,.22), transparent 60%),
+        radial-gradient(900px 420px at 95% 5%, rgba(252,209,22,.22), transparent 55%),
+        radial-gradient(1000px 500px at 80% 105%, rgba(0,122,94,.20), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      line-height:1.45;
+    }
+
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+
+    /* Utilitaires */
+    .container{max-width: var(--max); margin: 0 auto; padding: 0 18px;}
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      background: rgba(206,17,38,.12);
+      color: var(--ccaa-red);
+      border: 1px solid rgba(206,17,38,.18);
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 900;
+      letter-spacing:.02em;
+      border: 1px solid transparent;
+      cursor:pointer;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, var(--ccaa-yellow), #ffdf5a);
+      color: #123354;
+      box-shadow: 0 14px 30px rgba(252,209,22,.25);
+      border-color: rgba(252,209,22,.35);
+    }
+    .btn.primary:hover{transform: translateY(-1px); box-shadow: 0 18px 42px rgba(252,209,22,.32)}
+    .btn.ghost{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+      color: #fff;
+    }
+    .btn.ghost:hover{background: rgba(255,255,255,.12)}
+    .btn.blue{
+      background: linear-gradient(135deg, var(--ccaa-blue), var(--ccaa-blue-2));
+      color:#fff;
+      box-shadow: 0 14px 30px rgba(0,68,124,.18);
+      border-color: rgba(255,255,255,.08);
+    }
+    .btn.blue:hover{transform: translateY(-1px); opacity:.98}
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+    .muted{color: var(--muted)}
+    .kicker{font-size:12px; color: rgba(255,255,255,.75); letter-spacing:.12em; text-transform: uppercase; font-weight:800}
+    .h1{font-size: clamp(32px, 5vw, 58px); line-height: 1.05; margin: 14px 0 16px; font-weight: 950; letter-spacing: -0.02em;}
+    .h2{font-size: clamp(24px, 3vw, 34px); margin: 0 0 14px; font-weight: 950; letter-spacing:-0.02em;}
+    .lead{font-size: clamp(15px, 1.6vw, 18px); color: rgba(255,255,255,.86); max-width: 60ch}
+
+    /* Barre tricolore */
+    .flagbar{
+      height: 6px;
+      width: 100%;
+      display:flex;
+    }
+    .flagbar > div{flex:1}
+    .flagbar .g{background: var(--ccaa-green)}
+    .flagbar .r{background: var(--ccaa-red)}
+    .flagbar .y{background: var(--ccaa-yellow)}
+
+    /* NAV */
+    .nav{
+      position: sticky; top:0; z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,.82);
+      border-bottom: 1px solid rgba(15,23,42,.08);
+    }
+    .nav-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 14px 0;
+      gap: 14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 210px;
+    }
+    .logo{
+      width: 44px; height:44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--ccaa-blue), var(--ccaa-blue-2));
+      display:grid; place-items:center;
+      box-shadow: 0 12px 30px rgba(0,68,124,.20);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .brand-title{display:flex; flex-direction:column; line-height:1}
+    .brand-title strong{font-size: 18px; font-weight: 950; letter-spacing: -.01em}
+    .brand-title span{font-size: 10px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: rgba(15,23,42,.55); margin-top: 6px}
+
+    .nav-right{
+      display:flex; align-items:center; gap: 14px;
+    }
+    .badge{
+      display:none;
+      font-size: 12px;
+      color: rgba(15,23,42,.55);
+      padding-right: 14px;
+      border-right: 1px solid rgba(15,23,42,.10);
+      font-weight: 800;
+      font-style: italic;
+    }
+    @media (min-width: 860px){
+      .badge{display:inline-flex}
+    }
+
+    /* HERO */
+    .hero{
+      position: relative;
+      overflow:hidden;
+      color:#fff;
+      background: linear-gradient(135deg, var(--ccaa-blue), var(--ccaa-blue-2));
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(900px 420px at 15% 25%, rgba(255,255,255,.11), transparent 55%),
+        radial-gradient(900px 420px at 85% 15%, rgba(252,209,22,.18), transparent 55%),
+        radial-gradient(900px 420px at 80% 90%, rgba(0,122,94,.16), transparent 60%);
+      pointer-events:none;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 28px;
+      align-items:center;
+      padding: 70px 0 60px;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 920px){
+      .hero-grid{grid-template-columns: 1fr; padding: 54px 0 44px;}
+    }
+
+    .hero-actions{
+      display:flex; flex-wrap:wrap; gap: 12px;
+      margin-top: 26px;
+    }
+
+    /* Shield icon (SVG) */
+    .hero-shield{
+      position:absolute;
+      right:-120px;
+      top:-140px;
+      width: 420px;
+      height: 420px;
+      opacity: .08;
+      transform: rotate(-12deg);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .hero-panel{
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 20px 55px rgba(0,0,0,.25);
+      padding: 18px;
+    }
+    .hero-panel .mini{
+      display:flex; gap:10px; align-items:center;
+      color: rgba(255,255,255,.85);
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+    .hero-panel .mini .dot{
+      width:10px; height:10px; border-radius: 999px;
+      background: rgba(255,255,255,.25);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.08) inset;
+    }
+
+    /* STATS */
+    .stats{
+      background: rgba(255,255,255,.92);
+      border-bottom: 1px solid rgba(15,23,42,.08);
+    }
+    .stats-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 20px 0;
+    }
+    @media (max-width: 920px){
+      .stats-grid{grid-template-columns: repeat(2, 1fr)}
+    }
+    @media (max-width: 460px){
+      .stats-grid{grid-template-columns: 1fr}
+    }
+    .stat{
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,.08);
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(2,6,23,.05);
+      text-align:center;
+    }
+    .stat strong{display:block; font-size: 28px; font-weight: 950; letter-spacing: -.02em}
+    .stat span{display:block; font-size: 13px; color: rgba(15,23,42,.60); font-weight: 700; margin-top:6px}
+
+    /* SECTION API */
+    .section{
+      padding: 66px 0;
+    }
+    .api-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items:stretch;
+    }
+    @media (max-width: 920px){
+      .api-grid{grid-template-columns: 1fr}
+    }
+
+    .checklist{list-style:none; padding:0; margin: 18px 0 0}
+    .checklist li{
+      display:flex; gap: 12px; align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.08);
+      background: rgba(255,255,255,.85);
+      margin-bottom: 10px;
+    }
+    .checklist svg{flex:0 0 auto; margin-top: 2px}
+    .checklist code{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(2,6,23,.06);
+      border: 1px solid rgba(2,6,23,.10);
+    }
+
+    .terminal{
+      background: #0b1220;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 22px;
+      box-shadow: 0 22px 60px rgba(2,6,23,.25);
+      overflow:hidden;
+    }
+    .terminal-top{
+      display:flex; align-items:center; gap: 9px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: rgba(255,255,255,.68);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-style: italic;
+    }
+    .bubble{width:10px; height:10px; border-radius: 999px}
+    .bubble.red{background:#ef4444}
+    .bubble.yellow{background:#f59e0b}
+    .bubble.green{background:#22c55e}
+    .terminal-body{
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(255,255,255,.85);
+    }
+    .terminal-body .verb{color:#60a5fa; font-weight:900}
+    .terminal-body .url{color:#fde68a}
+    .terminal-body .q{color:#4ade80}
+    .terminal-body .k{color:rgba(255,255,255,.45)}
+    .terminal-body .v{color:#fff}
+
+    .qr-preview{
+      margin-top: 14px;
+      display:flex;
+      justify-content:center;
+      padding: 16px;
+    }
+    .qr-preview img{
+      width: 170px; height: 170px;
+      background:#fff;
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* FOOTER */
+    footer{
+      background: #0b1220;
+      color:#fff;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .footer-grid{
+      display:flex; flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 20px;
+      padding: 34px 0 22px;
+    }
+    .footer-left strong{font-size: 22px; font-weight: 950}
+    .footer-left p{margin: 10px 0 0; color: rgba(255,255,255,.65); font-weight: 600}
+    .footer-right{
+      text-align:right;
+      margin-left:auto;
+    }
+    @media (max-width: 720px){
+      .footer-right{text-align:left; margin-left:0}
+    }
+    .footer-right .cap{
+      font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      font-weight: 900;
+    }
+    .footer-right .mail{margin-top: 8px; font-weight: 800; color: rgba(255,255,255,.86)}
+    .icons{display:flex; gap: 12px; justify-content:flex-end; margin-top: 12px}
+    @media (max-width: 720px){.icons{justify-content:flex-start}}
+    .iconbtn{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      transition: transform .18s ease, background .18s ease;
+      cursor:pointer;
+    }
+    .iconbtn:hover{transform: translateY(-1px); background: rgba(255,255,255,.10)}
+    .footer-bottom{
+      padding: 18px 0 26px;
+      text-align:center;
+      font-size: 10px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.48);
+      font-weight: 900;
+    }
+
+    /* Petits détails */
+    .anchor-offset{scroll-margin-top: 88px;}
+  </style>
+</head>
+
+<body>
+  <!-- Barre tricolore (Cameroun) -->
+  <div class="flagbar">
+    <div class="g"></div>
+    <div class="r"></div>
+    <div class="y"></div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <!-- Avion (SVG) -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M2.8 11.2l7.7 1.7 6.9-7.6c.6-.6 1.5-.7 2.2-.2.8.5 1 1.5.6 2.4l-3.5 7.8 3.3 3.3c.4.4.4 1 0 1.4l-.6.6c-.4.4-1 .4-1.4 0l-3.3-3.3-7.8 3.5c-.9.4-1.9.2-2.4-.6-.5-.7-.4-1.6.2-2.2l7.6-6.9-1.7-7.7c-.1-.5.1-1.1.5-1.5l.5-.5c.5-.5 1.2-.7 1.9-.5l6 1.7" stroke="rgba(255,255,255,.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <strong>digiKUNTZ</strong>
+          <span>Solutions Aéronautiques</span>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <span class="badge">Partenaire technologique CCAA</span>
+        <a class="btn blue" href="#api">Documentation API</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <!-- Shield décor (SVG) -->
+    <svg class="hero-shield" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2l8 4v6c0 5.2-3.4 9.9-8 10-4.6-.1-8-4.8-8-10V6l8-4z"
+            stroke="rgba(255,255,255,.95)" stroke-width="1.2"/>
+      <path d="M9 12l2 2 4-5"
+            stroke="rgba(255,255,255,.95)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <span class="pill">Service Officiel</span>
+          <h1 class="h1">
+            Génération de QR Codes <br>
+            <span style="color:#8cc8ff">Sécurisés & Certifiés.</span>
+          </h1>
+          <p class="lead">
+            Le pivot de l'intégrité des licences aéronautiques au Cameroun.
+            Assurez la validité des titres de navigation grâce à notre endpoint QuickChart haute performance.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn primary" href="#api">
+              CONFIGURER L'API
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h12" stroke="#123354" stroke-width="2" stroke-linecap="round"/>
+                <path d="M13 6l6 6-6 6" stroke="#123354" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+
+            <a class="btn ghost" href="mailto:support@digikuntz.com">
+              SUPPORT TECHNIQUE
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 6h16v12H4V6z" stroke="rgba(255,255,255,.92)" stroke-width="1.8" />
+                <path d="M4 7l8 6 8-6" stroke="rgba(255,255,255,.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="mini">
+            <span class="dot"></span>
+            <span>Excellence • Sécurité • Conformité</span>
+          </div>
+
+          <div class="muted" style="color: rgba(255,255,255,.80); font-weight:700; font-size:14px;">
+            Endpoint QR haute densité, optimisé pour la vérification rapide des licences (terrain, faible luminosité, PVC).
+          </div>
+
+          <div style="margin-top:14px; display:grid; gap:10px;">
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5.2-3.4 9.9-8 10-4.6-.1-8-4.8-8-10V6l8-4z" stroke="rgba(255,255,255,.88)" stroke-width="1.6"/>
+              </svg>
+              <div style="color: rgba(255,255,255,.86); font-weight:800">Sécurisé (TLS) + flux contrôlés</div>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 12h12" stroke="rgba(255,255,255,.88)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M12 6v12" stroke="rgba(255,255,255,.88)" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <div style="color: rgba(255,255,255,.86); font-weight:800">Format SVG/PNG pour impression</div>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="rgba(255,255,255,.88)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M14 6l6 6-6 6" stroke="rgba(255,255,255,.88)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div style="color: rgba(255,255,255,.86); font-weight:800">Intégration simple : <span style="font-family:var(--mono)">/qr?text=...</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat">
+          <strong>99.9%</strong>
+          <span>Disponibilité (Uptime)</span>
+        </div>
+        <div class="stat">
+          <strong>&lt; 100ms</strong>
+          <span>Temps de Réponse</span>
+        </div>
+        <div class="stat">
+          <strong>AES-256</strong>
+          <span>Sécurité des Flux</span>
+        </div>
+        <div class="stat">
+          <strong>ICAO</strong>
+          <span>Conformité Standard</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API SECTION -->
+  <section id="api" class="section anchor-offset">
+    <div class="container">
+      <div class="api-grid">
+        <div>
+          <h2 class="h2">Spécifications pour la CCAA</h2>
+          <p class="muted" style="margin:0; font-weight:700">
+            L'API est configurée pour générer des codes QR à forte densité, capables de stocker
+            les informations critiques des licences même dans des environnements à faible luminosité.
+          </p>
+
+          <ul class="checklist">
+            <li>
+              <!-- check icon -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div style="font-weight:800; color: rgba(15,23,42,.85)">
+                Correction d'erreur de niveau <code>H</code> (High)
+              </div>
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div style="font-weight:800; color: rgba(15,23,42,.85)">
+                Rendu Vectoriel <code>SVG</code> pour cartes PVC
+              </div>
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div style="font-weight:800; color: rgba(15,23,42,.85)">
+                Endpoint : <code>/qr?text=...</code>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-top">
+            <span class="bubble red"></span>
+            <span class="bubble yellow"></span>
+            <span class="bubble green"></span>
+            <span style="margin-left:10px">// Aperçu de l'appel système</span>
+          </div>
+
+          <div class="terminal-body">
+            <div>
+              <span class="verb">GET</span>
+              <span class="url"> https://ccaa.digikuntz.com/qr</span><br>
+              <span class="k">?text=</span><span class="q">"ID:CCAA-237-XP-44"</span><br>
+              <span class="k">&size=</span><span class="v">300</span><br>
+              <span class="k">&ecLevel=</span><span class="v">H</span>
+            </div>
+
+            <div class="qr-preview">
+              <img
+                src="https://ccaa.digikuntz.com/qr?text=digiKuntz_CCAA_Portal_Verification&size=150&ecLevel=H"
+                alt="Test QR"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-left">
+          <strong>digiKUNTZ</strong>
+          <p>Expertise en Infrastructures Digitales Aéronautiques.</p>
+        </div>
+
+        <div class="footer-right">
+          <div class="cap">Maintenance & Sécurité</div>
+          <div class="mail">support@digikuntz.com</div>
+
+          <div class="icons" aria-label="Liens">
+            <div class="iconbtn" title="GitHub">
+              <!-- github svg -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15 22v-3.5c0-.8.3-1.4.8-1.8-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.2 0 4.5-2.7 5.5-5.3 5.8.5.4.9 1.2.9 2.5V22"
+                      stroke="rgba(255,255,255,.78)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 20c-3 .9-4-1.5-4-1.5" stroke="rgba(255,255,255,.78)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+
+            <div class="iconbtn" title="Site Web">
+              <!-- globe svg -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" stroke="rgba(255,255,255,.78)" stroke-width="1.6"/>
+                <path d="M2 12h20" stroke="rgba(255,255,255,.78)" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12 2c3 3.5 3 16.5 0 20C9 18.5 9 5.5 12 2z" stroke="rgba(255,255,255,.78)" stroke-width="1.6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        Propulsé par la technologie Open Source QuickChart
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
